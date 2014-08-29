@@ -1,0 +1,11 @@
+function iaOff() {
+	if (getTurn() == 1) say("IA désactivée dans ce context.");
+	if (getTurn() == 2) say("Merci de m'affronter dans un context interessant.");
+	if (getTurn() == 3) say("Veuillez m'excuser pour la gène occasionner.");
+	if (getTurn() == 4) {
+		say("En compensation, voici un lama.");
+		lama();
+	}
+
+	moveToward(getNearestEnemy());
+}

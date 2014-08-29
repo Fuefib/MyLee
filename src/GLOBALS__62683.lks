@@ -1,0 +1,18 @@
+global CUR_TURN;
+global CUR_TP;
+global CUR_MP;
+global CUR_CELL;
+global AGI_BUFF_ON = false;
+global STR_BUFF_ON = false;
+global CUR_LEEK = getLeek();
+global CUR_STR = getForce();
+global CUR_AGI = getAgility();
+
+global CUR_HELM_COST = getChipCost(CHIP_HELMET);
+global CUR_STRE_COST = getChipCost(CHIP_STRETCHING);
+global CUR_BAN_COST = getChipCost(CHIP_BANDAGE);
+
+CUR_TURN = getTurn();
+CUR_TP = getTP();
+CUR_MP = getMP();
+CUR_CELL = getCell();

@@ -1,0 +1,61 @@
+include("GLOBALS");
+include("GLOBAL_Chips");
+
+// Return true if the attack is in range (i.e. hit or miss)
+function isAttackInRange(attack) {
+	return (attack == USE_SUCCESS or attack == USE_FAILED);
+}
+
+// Use all AP to shoot with current weapon
+function emptyGun(enemy) {
+	var shoot = useWeapon(enemy);
+	while (isAttackInRange(shoot)) {
+		shoot = useWeapon(enemy);
+	}
+}
+
+// Use all AP to cast given Chip
+function emptyChip(chip, enemy) {
+	var chipAttack = myUseChip(chip, enemy);
+	while (chipAttack == USE_SUCCESS or chipAttack == USE_FAILED) {
+		chipAttack = myUseChip(chip, enemy);
+	}
+}
+
+
+// Use heal if necessary
+function healMeh() {
+	var totalHP = getTotalLife();
+	var currentHP = getLife();
+
+	if (totalHP - currentHP > 100) {
+		var isBuffOn = getAgility() >= CUR_AGI + 50;
+		if (isBuffOn) {
+			var cost = isBuffOn ? CUR_BAN_COST : CUR_BAN_COST + CUR_STRE_COST;
+			if (CUR_TP >= cost) {
+				if (isBuffOn or myUseChip(CHIP_STRETCHING, CUR_LEEK) == USE_SUCCESS) {
+					myUseChip(CHIP_CURE, CUR_LEEK);
+				}
+			}
+		}
+	}
+}
+
+// Use casque
+function useCasque() {
+	var nextHelmet = getNextChipUse(CHIP_HELMET);
+
+	if (nextHelmet <= CUR_TURN) {
+		var isBuffOn = getAgility() >= CUR_AGI + 50;
+		var isBuffReady = isChipReady(CHIP_STRETCHING);
+
+		if (isBuffOn or isBuffReady) {
+			var cost = isBuffOn ? CUR_HELM_COST : CUR_HELM_COST + CUR_STRE_COST;
+			if (CUR_TP >= cost) {
+				if (isBuffOn or myUseChip(CHIP_STRETCHING, CUR_LEEK) == USE_SUCCESS) {
+					myUseChip(CHIP_HELMET, CUR_LEEK);
+				}
+			}
+		}
+	}
+}

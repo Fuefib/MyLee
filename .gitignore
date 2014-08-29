@@ -34,3 +34,14 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+*.name
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/scope_settings.xml
+.idea/vcs.xml
+.idea/workspace.xml
+gen/leekwars-api.lks
+LeekWar.iml

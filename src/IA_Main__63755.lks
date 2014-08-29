@@ -1,0 +1,42 @@
+include("GLOBALS");
+include("IA_Solo");
+include("IA_Team");
+include("IA_Tests");
+include("IA_Off");
+
+
+global iaFunction;
+
+// Fonction qui calcule l'IA a utiliser en fonction du context
+function proxy(){
+	var fightContext = getFightContext();
+	var fightType = getFightType();
+	
+	if(fightContext == FIGHT_CONTEXT_GARDEN){
+		if(fightType == FIGHT_TYPE_SOLO){
+			return iaSolo;
+		} else if(fightType == FIGHT_TYPE_TEAM){
+			return iaTeam;
+		} else if(fightType == FIGHT_TYPE_FARMER){
+			return iaSolo;
+		} else {
+			return iaSolo;
+		}
+	} else if(fightContext == FIGHT_CONTEXT_CHALLENGE){
+		return iaSolo;
+	} else if (fightContext == FIGHT_CONTEXT_TOURNAMENT){
+		return iaSolo;
+	} else if(fightContext == FIGHT_CONTEXT_TEST){
+		return iaTests;		
+	} else {
+		return iaSolo;
+	}
+}
+
+// On determine la fonction a utiliser au tour 1 uniquement
+if(CUR_TURN == 1){
+	iaFunction = proxy();
+}
+
+// Appel de la fonction
+iaFunction();

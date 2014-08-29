@@ -1,0 +1,6 @@
+include("IA_Solo");
+
+function iaTests(){
+	debug("IA de tests");
+	iaSolo();
+}

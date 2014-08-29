@@ -1,0 +1,44 @@
+include("GLOBALS");
+
+global G_chipNextUse = [];
+
+// Returns next turn for chip
+function getNextChipUse(chip) {
+	var nextUse = G_chipNextUse[chip];
+	return nextUse != null ? nextUse : 0;
+}
+
+// Returns whether chip is ready to use
+function isChipReady(chip){
+	var nextUse = getNextChipUse(chip);
+	
+	return nextUse <= CUR_TURN;
+}
+
+// Set the next turn for chip
+function setNextChipUse(chip, use) {
+	if (use == USE_SUCCESS) {
+		var nextUse = getTurn() + getChipCooldown(chip);
+		G_chipNextUse[chip] =  getTurn() + getChipCooldown(chip);
+	}
+}
+
+// Use chip on leek, and save next turn
+function myUseChip(chip, leek) {
+	var use = useChip(chip, leek);
+	setNextChipUse(chip, use);
+	
+	CUR_TP = CUR_TP - getChipCost(chip);
+	
+	return use;
+}
+
+// Use chip on cell, and save next turn
+function myUseChipOnCell(chip, cell) {
+	var use = useChipOnCell(chip, cell);
+	setNextChipUse(chip, use);
+	
+	CUR_TP = CUR_TP - getChipCost(chip);
+	
+	return use;
+}

@@ -1,0 +1,88 @@
+include("GLOBALS");
+
+function getEndPoints(paths) {
+	var i;
+	var s = count(paths);
+	var endPoints = [];
+	for (i = 0; i < s; i++) {
+		var path = paths[i];
+		var endPoint = path[count(path) - 1];
+
+		if (!inArray(endPoints, endPoint)) {
+			push(endPoints, endPoint);
+		}
+	}
+
+	return endPoints;
+}
+
+function getPaths(leek) {
+	var mvt = getMP(leek);
+	var cell = getCell(leek);
+
+	return getPathsFromCell(cell, mvt);
+}
+
+function getEndPointsFromCell(cell, mvt) {
+	return getEndPointsFromCell_rec(getCellX(cell), getCellY(cell), mvt, [], cell, null);
+}
+
+function getEndPointsFromCellColor(cell, mvt, c){
+	return getEndPointsFromCell_rec(getCellX(cell), getCellY(cell), mvt, [], cell, c);
+}
+
+function getEndPointsFromCell_rec(x, y, mvt, endPoints, startCell, c) {
+	var currentCell = getCellFromXY(x, y);
+
+	if (currentCell != null && (isEmptyCell(currentCell) or currentCell == startCell or currentCell == CUR_CELL) && !inArray(endPoints, currentCell)) {
+		push(endPoints, currentCell);
+		
+		if(c != null){
+			mark(currentCell, c);			
+		}
+		
+		if (mvt > 0) {
+			var newMvt = mvt - 1;
+
+			endPoints = getEndPointsFromCell_rec(x + 1, y, newMvt, endPoints,startCell,c);
+			endPoints = getEndPointsFromCell_rec(x - 1, y, newMvt, endPoints,startCell,c);
+			endPoints = getEndPointsFromCell_rec(x, y + 1, newMvt, endPoints,startCell,c);
+			endPoints = getEndPointsFromCell_rec(x, y - 1, newMvt, endPoints,startCell,c);
+		}
+	}
+
+	return endPoints;
+}
+
+function getPathsFromCell(cell, mvt) {
+	return getPaths_rec(getCellX(cell), getCellY(cell), mvt, [], [], cell);
+}
+
+
+function getPaths_rec(x, y, mvt, currentPath, paths, startCell) {
+	var currentCell = getCellFromXY(x, y);
+
+
+	if (currentCell != null && (isEmptyCell(currentCell) or startCell == currentCell)) {
+		var newPath = [];
+		pushAll(newPath, currentPath);
+		push(newPath, currentCell);
+		push(paths, newPath);
+
+		if (mvt <= 0) {
+			return paths;
+		} else {
+			var newMvt = mvt - 1;
+			var right = getPaths_rec(x + 1, y, newMvt, newPath, [], startCell);
+			var left = getPaths_rec(x - 1, y, newMvt, newPath, [], startCell);
+			var up = getPaths_rec(x, y - 1, newMvt, newPath, [], startCell);
+			var down = getPaths_rec(x, y + 1, newMvt, newPath, [], startCell);
+			pushAll(paths, right != null ? right : []);
+			pushAll(paths, left != null ? left : []);
+			pushAll(paths, up != null ? up : []);
+			pushAll(paths, down != null ? down : []);
+
+			return paths;
+		}
+	}
+}

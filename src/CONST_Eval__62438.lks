@@ -1,0 +1,135 @@
+include("CONST_Weapons");
+include("CONST_Path");
+
+
+// Get Damage on target leek, accounting shields
+function getWeaponDamageOnLeek(weapon, nbTP, leek, targetLeek, strBuff) {
+	var minWeapDmg = getMinWeaponDamage(weapon);
+	var weapCost = getWeaponCost(weapon);
+	var str = getForce(leek) + strBuff;
+
+	var weapDmg = (minWeapDmg) * (1 + str / 100);
+	var nbAttacks = weapCost > 0 ? floor(nbTP / weapCost) : 0;
+
+	var dmg = weapDmg * nbAttacks;
+
+	var targetAShield = getAbsoluteShield(targetLeek);
+	var targetRshield = getRelativeShield(targetLeek);
+
+	var realDmg = (dmg) * (1 - targetRshield / 100) - targetAShield;
+
+	return realDmg;
+}
+
+// Can kill : true if next attack(s) can KILL the target leek
+function canKill(leek, targetLeek, nbTP) {
+	return canKillWithBuff(leek, targetLeek, nbTP, 0);
+}
+
+// Can kill : true if next attack(s) can KILL the target leek
+function canKillWithBuff(leek, targetLeek, nbTP, strBuff) {
+	var targetHP = getLife(targetLeek);
+	var weapon = getWeapon(leek);
+	var damage = getWeaponDamageOnLeek(weapon, nbTP, leek, targetLeek, strBuff);
+
+	return (canUseWeapon(targetLeek) && targetHP - damage <= 0);
+}
+
+// Verify LoS between to cell
+function verifyLoS(start, end, targetLeek) {
+	var startX = getCellX(start);
+	var startY = getCellY(start);
+
+	var difX = getCellX(end) - startX;
+	var difY = getCellY(end) - startY;
+
+	var dist = round(getDistance(start, end));
+
+	var dx = difX / dist;
+	var dy = difY / dist;
+
+	for (var i = 1; i < dist; i++) {
+		var cell = getCellFromXY(round(startX + dx * i), round(startY + dy * i));
+		if (!isEmptyCell(cell) && cell != getCell(targetLeek)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function getHiddenCell(paths, enemyEndPoints, mp) {
+	var hiddenPath = getHiddenPath(paths, enemyEndPoints, mp);
+	var hiddenCell = hiddenPath[count(hiddenPath) - 1];
+
+	debug("selected cell : " + hiddenCell);
+	return hiddenCell;
+}
+
+function getHiddenEndPoint(endPoints, enemyEndPoints, targetLeek, isInline) {
+	var i;
+	var s = count(endPoints);
+
+	// Tentative d'induire un comportement un peu aléatoire pour eviter de boucler
+	if (randInt(0, 100) >= 50) {
+		sort(endPoints, SORT_ASC);
+	} else {
+		sort(endPoints, SORT_DESC);
+	}
+
+
+	for (i = 0; i < s; i++) {
+		var endPoint = endPoints[i];
+		var hidden = isHiddenCell(endPoint, enemyEndPoints, targetLeek, isInline);
+		if (hidden) {
+			return endPoint;
+		}
+	}
+
+	return null;
+}
+
+function getHiddenPath(paths, enemyEndPoints, mp) {
+	var i;
+	var s = count(paths);
+
+	for (i = 0; i < s; i++) {
+		var path = paths[i];
+
+		if (count(path) >= mp) {
+			var hidden = isHidden(path, enemyEndPoints, false);
+			if (hidden) {
+				debug("selected path : " + join(path, " ; "));
+				return path;
+			}
+		}
+	}
+
+	return null;
+}
+
+function isHidden(path, enemyEndPoints, isInline) {
+	var lastCell = path[count(path) - 1];
+
+	return isHiddenCell(lastCell, enemyEndPoints, getLeek(), isInline);
+}
+
+function isHiddenCell(lastCell, enemyEndPoints, targetLeek, isInline) {
+	var i;
+	var s = count(enemyEndPoints);
+
+	for (i = 0; i < s; i++) {
+		var badCell = enemyEndPoints[i];
+
+		if (getCellDistance(lastCell, badCell) <= 10) {
+			if (lineOfSight(lastCell, badCell, targetLeek)
+			or verifyLoS(lastCell, badCell, targetLeek)
+			or(isInline && !isOnSameLine(lastCell, badCell))) {
+				mark(lastCell, COLOR_RED);
+				return false;
+			}
+		}
+
+	}
+	mark(lastCell, COLOR_GREEN);
+	return true;
+}

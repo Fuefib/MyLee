@@ -1,0 +1,113 @@
+// Return the list of available weapons for given level
+function getWeaponsForLevel(level) {
+	var weapons = [WEAPON_PISTOL];
+
+	if (level >= 5) {
+		push(weapons, WEAPON_MACHINE_GUN);
+		if (level >= 9) {
+			push(weapons, WEAPON_DOUBLE_GUN);
+			if (level >= 17) {
+				push(weapons, WEAPON_SHOTGUN);
+				if (level >= 27) {
+					push(weapons, WEAPON_MAGNUM);
+					if (level >= 40) {
+						push(weapons, WEAPON_LASER);
+						if (level >= 55) {
+							push(weapons, WEAPON_GRENADE_LAUNCHER);
+							if (level >= 90) {
+								push(weapons, WEAPON_FLAME_THROWER);
+								if (level >= 109) {
+									push(weapons, WEAPON_DESTROYER);
+									if (level >= 135) {
+										push(weapons, WEAPON_GAZOR);
+										if (level >= 170) {
+											push(weapons, WEAPON_B_LASER);
+											if (level >= 307) {
+												push(weapons, WEAPON_ELECTRISOR);
+												if (level >= 400) {
+													push(weapons, WEAPON_M_LASER);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return weapons;
+}
+
+
+// Returns max weapon range from its ID
+function getMaxWeaponRange(weaponId) {
+	if (weaponId == 13) { // WEAPON_B_LASER
+		return 8;
+	} else if (weaponId == WEAPON_DESTROYER) {
+		return 6;
+	} else if (weaponId == WEAPON_DOUBLE_GUN) {
+		return 7;
+	} else if (weaponId == WEAPON_ELECTRISOR) {
+		return 8;
+	} else if (weaponId == WEAPON_FLAME_THROWER) {
+		return 7;
+	} else if (weaponId == WEAPON_GAZOR) {
+		return 7;
+	} else if (weaponId == WEAPON_GRENADE_LAUNCHER) {
+		return 7;
+	} else if (weaponId == WEAPON_LASER) {
+		return 7;
+	} else if (weaponId == WEAPON_MACHINE_GUN) {
+		return 6;
+	} else if (weaponId == WEAPON_MAGNUM) {
+		return 8;
+	} else if (weaponId == WEAPON_M_LASER) {
+		return 15;
+	} else if (weaponId == WEAPON_PISTOL) {
+		return 7;
+	} else if (weaponId == WEAPON_SHOTGUN) {
+		return 5;
+	} else {
+		return null;
+	}
+}
+
+
+
+// Returns max weapon range from its ID
+function getMinWeaponDamage(weaponId) {
+
+	if (weaponId == WEAPON_PISTOL) {
+		return 15;
+	} else if (weaponId == WEAPON_MACHINE_GUN) {
+		return 20;
+	} else if (weaponId == WEAPON_DOUBLE_GUN) {
+		return 18;
+	} else if (weaponId == WEAPON_SHOTGUN) {
+		return 33;
+	} else if (weaponId == WEAPON_MAGNUM) {
+		return 25;
+	} else if (weaponId == WEAPON_LASER) {
+		return 43;
+	} else if (weaponId == WEAPON_GRENADE_LAUNCHER) {
+		return 45;
+	} else if (weaponId == WEAPON_FLAME_THROWER) {
+		return 35;
+	} else if (weaponId == WEAPON_DESTROYER) {
+		return 40;
+	} else if (weaponId == WEAPON_GAZOR) {
+		return 15;
+	} else if (weaponId == 13) { // WEAPON_B_LASER
+		return 50;
+	} else if (weaponId == WEAPON_ELECTRISOR) {
+		return 70;
+	} else if (weaponId == WEAPON_M_LASER) {
+		return 90;
+	} else {
+		return null;
+	}
+}
