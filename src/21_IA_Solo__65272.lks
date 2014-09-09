@@ -5,7 +5,7 @@ include("GLOBAL_Chips");
 
 function iaSolo() {
 	if (getWeapon() == null) {
-		setWeapon(WEAPON_MAGNUM);
+		setWeapon(WEAPON_SHOTGUN);
 	}
 
 	if(getTurn() == 2){

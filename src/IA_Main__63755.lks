@@ -1,33 +1,115 @@
 include("GLOBALS");
 include("IA_Solo");
-include("IA_Team");
 include("IA_Tests");
 include("IA_Off");
 
 
 global iaFunction;
 
+function iaTeam () {
+		if (getWeapon() == null) {
+		setWeapon(WEAPON_MAGNUM);
+	}
+
+
+	if (getTurn() == 2) {
+		myUseChip(CHIP_STEROID, CUR_LEEK);
+	}
+
+	// Get nearest bitch
+	var enemy = getNearestEnemy();
+
+	// Endpoints
+	var myEndPoints = getEndPointsFromCellColor(getCell(), CUR_MP, COLOR_BLUE);
+	var enemyEndPoints = getEndPointsFromCell(getCell(enemy), getMP(enemy));
+
+
+	// function canKillWithBuff(leek, targetLeek, nbTP, strBuff) {
+	if (canKill(CUR_LEEK, enemy, CUR_TP)) {
+		debug("can finish !");
+		emptyGun(enemy);
+	} else if (getCooldown(CHIP_PROTEIN) == 0 && canKillWithBuff(CUR_LEEK, enemy, CUR_TP - getChipCost(CHIP_PROTEIN), 50)) {
+		debug("can finish with CHIP_PROTEIN !");
+		myUseChip(CHIP_PROTEIN, CUR_LEEK);
+		emptyGun(enemy);
+	} else {
+		debug("can't finish");
+	}
+
+	// Casque !
+	useCasque();
+
+	// Move to somewhere I can shoot
+	var nextHelmet = getNextChipUse(CHIP_HELMET);
+	var noHelmet = nextHelmet > 0 && nextHelmet - CUR_TURN == 1;
+	var isBuffOn = getAgility() >= CUR_AGI + 50;
+
+
+	// Soin !
+	healMeh();
+
+	// Attack with best weapon
+	var cfw = getCellsForWeapons(CUR_LEEK, myEndPoints, getCell(enemy), getWeapons());
+	if (!noHelmet && !isEmpty(cfw)) {
+		var cfLaser = cfw[WEAPON_LASER];
+		var attackCell = null;
+		if (!isEmpty(cfLaser) && getForce() >= CUR_STR + 50) {
+			attackCell = getNearestCell(getCell(), cfLaser);
+			if (getWeapon() != WEAPON_LASER) {
+				setWeapon(WEAPON_LASER);
+			}
+		} else {
+			var cfMagnum = cfw[WEAPON_MAGNUM];
+			if (!isEmpty(cfMagnum)) {
+				attackCell = getNearestCell(getCell(), cfMagnum);
+				if (getWeapon() != WEAPON_MAGNUM) {
+					setWeapon(WEAPON_MAGNUM);
+				} else {
+					myUseChip(CHIP_PROTEIN, CUR_LEEK);
+				}
+			} else {
+				attackCell = getCellToUseWeapon(enemy);
+				mark(attackCell, getColor(255, 0, 255));
+			}
+		}
+
+		moveTowardCell(attackCell);
+		if (getCell() != getCellToUseWeapon(enemy)) {
+			moveTowardCell(getCellToUseWeapon(enemy));
+		}
+	}
+
+	emptyGun(enemy);
+
+	// Use heal if any points remaining
+	if (getLife() < getTotalLife()) {
+		myUseChip(CHIP_BANDAGE, CUR_LEEK);
+	}
+	
+	myUseChip(CHIP_SHIELD, CUR_LEEK);
+	myUseChip(CHIP_WALL, CUR_LEEK);
+
+	// Burn dat motha focka
+	emptyChip(CHIP_SPARK, enemy);
+
+
+	debug("nb my EndPoints : " + count(myEndPoints));
+	debug("nb enemy EndPoints : " + count(enemyEndPoints));
+
+	debug("getInstructionsCount : " + getInstructionsCount());
+}
+
 // Fonction qui calcule l'IA a utiliser en fonction du context
-function proxy(){
+function proxy() {
 	var fightContext = getFightContext();
 	var fightType = getFightType();
-	
-	if(fightContext == FIGHT_CONTEXT_GARDEN){
-		if(fightType == FIGHT_TYPE_SOLO){
-			return iaSolo;
-		} else if(fightType == FIGHT_TYPE_TEAM){
-			return iaTeam;
-		} else if(fightType == FIGHT_TYPE_FARMER){
-			return iaSolo;
-		} else {
-			return iaSolo;
-		}
-	} else if(fightContext == FIGHT_CONTEXT_CHALLENGE){
+
+	if (fightType == FIGHT_TYPE_SOLO) {
 		return iaSolo;
-	} else if (fightContext == FIGHT_CONTEXT_TOURNAMENT){
-		return iaSolo;
-	} else if(fightContext == FIGHT_CONTEXT_TEST){
-		return iaTests;		
+	} else if (fightType == FIGHT_TYPE_TEAM) {
+		return iaTeam;
+	} else if (fightType == FIGHT_TYPE_FARMER) {
+		return iaTeam;
 	} else {
 		return iaSolo;
 	}

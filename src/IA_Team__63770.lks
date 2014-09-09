@@ -1,5 +1,13 @@
-include("IA_Solo");
-
 function iaTeam(){
-	iaSolo();
+
+	var ally = getNearestAlly();
+	
+	moveToward(ally);
+	
+	if(getLife(ally) < getTotalLife(ally)){
+		useChip(CHIP_BANDAGE, ally);
+	}
+	
+	useChip(CHIP_HELMET, ally);
+
 }

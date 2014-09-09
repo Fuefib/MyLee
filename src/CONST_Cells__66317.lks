@@ -1,0 +1,62 @@
+include("GLOBALS");
+include("CONST_Path");
+
+global TAB_ENDPOINTS = [];
+
+TAB_ENDPOINTS[CUR_LEEK] = getEndPointsFromCell(CUR_LEEK, getMP(CUR_LEEK));
+//TAB_ENDPOINTS[CUR_ENEMY] = getEndPointsFromCell(CUR_ENEMY, getMP(CUR_ENEMY));
+
+function findJustOutOfRangeCell(movingLeek, targetLeek) {
+
+    var minDistances = minDistanceToCells(TAB_ENDPOINTS[movingLeek], targetLeek);
+    var maxAttackRange = 8; // TODO : a calculer en fonction des armes a partir du niveau 57
+
+
+}
+
+function minDistanceToCell(cell, targetLeek) {
+
+    var minDistance = 1000;
+    var i;
+    var c = count(TAB_ENDPOINTS[targetLeek]);
+
+    for (i = 0; i < c ; i++) {
+        var d = getCellDistance(cell, TAB_ENDPOINTS[targetLeek][i]);
+        if ( d < minDistance) {
+            minDistance = d;
+        }
+    }
+
+    return minDistance;
+}
+
+function minDistanceToCells(cells, targetLeek) {
+
+    var minDistance = [];
+
+    var i;
+    var c = count(cells);
+
+    for (i = 0; i < c ; i++) {
+        var d = minDistanceToCell(cells[i], targetLeek);
+        minDistance[cells[i]] = d;
+    }
+
+    return minDistance;
+}
+
+function getNearestCell(current, cells) {
+    var distanceTab = [];
+    var i;
+    var c = count(cells);
+
+    for (i = 0; i < c; i++) {
+        var cell = cells[i];
+        var d = getCellDistance(current, cell);
+        distanceTab[d] = cell;
+    }
+
+    keySort(distanceTab, SORT_ASC);
+
+    return shift(distanceTab);
+}

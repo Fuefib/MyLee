@@ -1,0 +1,60 @@
+
+
+Combo lightDef (1 tour) :
+HELMET
+WALL
+
+Combo def (2 tours) :
+NoAttack : try to hide
+STRECH
+HELMET
+---------
+NoAttack : try to hide
+WALL
+Si besoin, CURE, sinon BOUCLIER
+
+
+Combo 1_turn_burst (1 tour) :
+Uniquement si ça peut finir la cible
+Si LASER
+    si possible, LASER
+
+Combo off (2 tours) -  :
+MoveAlmostRange
+STEROID
+----
+PROTEIN
+MAGNUM
+
+Combo off (3 tours) - LASER :
+MoveAlmostRange
+MOTIVATION
+STEROID
+---------
+MoveInRange
+PROTEIN
+LASER ou switch MAGNUM puis MAGNUM
+---------
+MoveInRange
+si MAGNUM
+    si LASER possible, switch LASER puis LASER
+    sinon MAGNUM puis Si besoin BANDAGE sinon SPARK
+si LASER
+    si LASER possible, LASER puis Bandage
+    sinon swtich MAGNUM, MAGNUM, puis Switch LASER
+NoAttack : try to hide
+
+
+
+
+CURRENT_COMBO = [function, function, function]
+
+nextCombo() {
+
+}
+
+nextAction(){
+    var action = shift(CURRENT_COMBO);
+
+    action();
+}

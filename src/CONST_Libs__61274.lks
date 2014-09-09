@@ -59,3 +59,23 @@ function useCasque() {
 		}
 	}
 }
+
+// Use casque
+function useWall() {
+	var nextHelmet = getNextChipUse(CHIP_WALL);
+
+	if (nextHelmet <= CUR_TURN) {
+		var isBuffOn = getAgility() >= CUR_AGI + 50;
+		var isBuffReady = isChipReady(CHIP_STRETCHING);
+
+		if (isBuffOn or isBuffReady) {
+			var cost = isBuffOn ? getChipCost(CHIP_WALL) : getChipCost(CHIP_WALL) + CUR_STRE_COST;
+			if (CUR_TP >= cost) {
+				if (isBuffOn or myUseChip(CHIP_STRETCHING, CUR_LEEK) == USE_SUCCESS) {
+					myUseChip(CHIP_WALL, CUR_LEEK);
+				}
+			}
+		}
+	}
+
+}

@@ -2,24 +2,6 @@ include("CONST_Weapons");
 include("CONST_Path");
 
 
-// Get Damage on target leek, accounting shields
-function getWeaponDamageOnLeek(weapon, nbTP, leek, targetLeek, strBuff) {
-	var minWeapDmg = getMinWeaponDamage(weapon);
-	var weapCost = getWeaponCost(weapon);
-	var str = getForce(leek) + strBuff;
-
-	var weapDmg = (minWeapDmg) * (1 + str / 100);
-	var nbAttacks = weapCost > 0 ? floor(nbTP / weapCost) : 0;
-
-	var dmg = weapDmg * nbAttacks;
-
-	var targetAShield = getAbsoluteShield(targetLeek);
-	var targetRshield = getRelativeShield(targetLeek);
-
-	var realDmg = (dmg) * (1 - targetRshield / 100) - targetAShield;
-
-	return realDmg;
-}
 
 // Can kill : true if next attack(s) can KILL the target leek
 function canKill(leek, targetLeek, nbTP) {

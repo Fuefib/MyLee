@@ -1,15 +1,20 @@
-include("CONST_Path");
-include("CONST_Eval");
-include("CONST_Libs");
+include("GLOBALS");
 include("GLOBAL_Chips");
 
+include("CONST_Path");
+include("CONST_Cells");
+include("CONST_Eval");
+include("CONST_Libs");
+include("CONST_Weapons");
+
+
+
 function iaSolo() {
+
 	if (getWeapon() == null) {
 		setWeapon(WEAPON_MAGNUM);
 	}
 
-    //654684
-    
 
 	if (getTurn() == 2) {
 		myUseChip(CHIP_STEROID, CUR_LEEK);
@@ -17,6 +22,11 @@ function iaSolo() {
 
 	// Get nearest bitch
 	var enemy = getNearestEnemy();
+
+	// Endpoints
+	var myEndPoints = getEndPointsFromCellColor(getCell(), CUR_MP, COLOR_BLUE);
+	var enemyEndPoints = getEndPointsFromCell(getCell(enemy), getMP(enemy));
+
 
 	// function canKillWithBuff(leek, targetLeek, nbTP, strBuff) {
 	if (canKill(CUR_LEEK, enemy, CUR_TP)) {
@@ -31,51 +41,61 @@ function iaSolo() {
 	}
 
 	// Casque !
-	useCasque();
+	useWall();
 
 	// Move to somewhere I can shoot
-	var nextHelmet = getNextChipUse(CHIP_HELMET);
+	var nextHelmet = getNextChipUse(CHIP_WALL);
 	var noHelmet = nextHelmet > 0 && nextHelmet - CUR_TURN == 1;
-	if (!noHelmet) {
-		var cell = getCellToUseWeapon(enemy);
-		moveTowardCell(cell);
+	var isBuffOn = getAgility() >= CUR_AGI + 50;
 
-		var isBuffOn = getAgility() >= CUR_AGI + 50;
-		if (!isBuffOn) {
-			myUseChip(CHIP_PROTEIN, CUR_LEEK);
-		}
-	}
 
 	// Soin !
 	healMeh();
 
-	if(getForce() >= CUR_STR + 50){
-		var los = lineOfSight(getCell(), getCell(enemy));
-		var range = getCellDistance(getCell(), getCell(enemy));
-		var inline = isOnSameLine(getCell(), getCell(enemy));
-		
-		if(los && inline && range > 1 && range <= 7 && getTP() >= 8){
-			setWeapon(WEAPON_LASER);
-			emptyGun(enemy);
-			setWeapon(WEAPON_MAGNUM);
+	// Attack with best weapon
+	var cfw = getCellsForWeapons(CUR_LEEK, myEndPoints, getCell(enemy), getWeapons());
+	if (!noHelmet && !isEmpty(cfw)) {
+		var cfLaser = cfw[WEAPON_LASER];
+		var attackCell = null;
+		if (!isEmpty(cfLaser) && getForce() >= CUR_STR + 50) {
+			attackCell = getNearestCell(getCell(), cfLaser);
+			if (getWeapon() != WEAPON_LASER) {
+				setWeapon(WEAPON_LASER);
+			}
+		} else {
+			var cfMagnum = cfw[WEAPON_MAGNUM];
+			if (!isEmpty(cfMagnum)) {
+				attackCell = getNearestCell(getCell(), cfMagnum);
+				if (getWeapon() != WEAPON_MAGNUM) {
+					setWeapon(WEAPON_MAGNUM);
+				} else {
+					myUseChip(CHIP_PROTEIN, CUR_LEEK);
+				}
+			} else {
+				attackCell = getCellToUseWeapon(enemy);
+				mark(attackCell, getColor(255, 0, 255));
+			}
+		}
+
+		moveTowardCell(attackCell);
+		if (getCell() != getCellToUseWeapon(enemy)) {
+			moveTowardCell(getCellToUseWeapon(enemy));
 		}
 	}
 
-	// Shoot dat motha focka
 	emptyGun(enemy);
 
 	// Use heal if any points remaining
 	if (getLife() < getTotalLife()) {
 		myUseChip(CHIP_BANDAGE, CUR_LEEK);
 	}
+	
+	myUseChip(CHIP_SHIELD, CUR_LEEK);
+	myUseChip(CHIP_WALL, CUR_LEEK);
 
 	// Burn dat motha focka
 	emptyChip(CHIP_SPARK, enemy);
 
-
-
-	var myEndPoints = getEndPointsFromCellColor(getCell(), CUR_MP, COLOR_BLUE);
-	var enemyEndPoints = getEndPointsFromCell(getCell(enemy), getMP(enemy));
 
 	debug("nb my EndPoints : " + count(myEndPoints));
 	debug("nb enemy EndPoints : " + count(enemyEndPoints));
@@ -99,9 +119,4 @@ function iaSolo() {
 	}
 
 	debug("getInstructionsCount : " + getInstructionsCount());
-
-	// Troll !
-	if (isDead(enemy)) {
-		lama();
-	}
 }

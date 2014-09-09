@@ -1,0 +1,61 @@
+include("21_IA_Solo");
+
+//--------------------------------
+//------- Code de base -----------
+//--------------------------------
+global CUR_ACTION = proxy();
+
+function iaTeam() {
+
+	
+	if (getWeapon() == null) {
+		setWeapon(WEAPON_MAGNUM);
+	}
+
+	var enemy = getNearestEnemy();
+	var ally = getNearestAlly();
+
+	moveTowardCell(getCellToUseChip(CHIP_WALL, ally));
+
+	if (getLife(ally) < getTotalLife(ally) - 80) {
+		useChip(CHIP_CURE, ally);
+	} else if (getLife() < getTotalLife() - 80) {
+		useChip(CHIP_CURE, getLeek());
+	}
+
+	useChip(CHIP_STRETCHING, getLeek());
+	useChip(CHIP_HELMET, ally);
+	useChip(CHIP_WALL, ally);
+	useChip(CHIP_SHIELD, ally);
+	useChip(CHIP_PROTEIN, ally);
+
+	if (getLife(ally) < getTotalLife(ally) - 20) {
+		useChip(CHIP_BANDAGE, ally);
+	} else if (getLife() < getTotalLife() - 20) {
+		useChip(CHIP_BANDAGE, getLeek());
+	}
+
+	// On essaye de lui tirer dessus
+	useWeapon(enemy);
+
+
+}
+
+
+// Fonction qui calcule l'IA a utiliser en fonction du context
+function proxy() {
+	var fightContext = getFightContext();
+	var fightType = getFightType();
+
+	if (fightType == FIGHT_TYPE_SOLO) {
+		return iaSolo;
+	} else if (fightType == FIGHT_TYPE_TEAM) {
+		return iaTeam;
+	} else if (fightType == FIGHT_TYPE_FARMER) {
+		return iaTeam;
+	} else {
+		return iaSolo;
+	}
+}
+
+CUR_ACTION();

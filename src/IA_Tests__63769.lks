@@ -1,6 +1,117 @@
-include("IA_Solo");
+include("GLOBALS");
+include("GLOBAL_Chips");
 
-function iaTests(){
-	debug("IA de tests");
-	iaSolo();
+include("CONST_Path");
+include("CONST_Cells");
+include("CONST_Eval");
+include("CONST_Libs");
+include("CONST_Weapons");
+
+
+
+function iaTests() {
+
+    debug("IA de tests");
+
+    if (getWeapon() == null) {
+        setWeapon(WEAPON_MAGNUM);
+    }
+
+
+    if (getTurn() == 2) {
+        myUseChip(CHIP_STEROID, CUR_LEEK);
+    }
+
+    // Get nearest bitch
+    var enemy = getNearestEnemy();
+
+    // Endpoints
+    var myEndPoints = getEndPointsFromCellColor(getCell(), CUR_MP, COLOR_BLUE);
+    var enemyEndPoints = getEndPointsFromCell(getCell(enemy), getMP(enemy));
+
+
+    // function canKillWithBuff(leek, targetLeek, nbTP, strBuff) {
+    if (canKill(CUR_LEEK, enemy, CUR_TP)) {
+        debug("can finish !");
+        emptyGun(enemy);
+    } else if (getCooldown(CHIP_PROTEIN) == 0 && canKillWithBuff(CUR_LEEK, enemy, CUR_TP - getChipCost(CHIP_PROTEIN), 50)) {
+        debug("can finish with CHIP_PROTEIN !");
+        myUseChip(CHIP_PROTEIN, CUR_LEEK);
+        emptyGun(enemy);
+    } else {
+        debug("can't finish");
+    }
+
+    // Casque !
+    useCasque();
+
+    // Move to somewhere I can shoot
+    var nextHelmet = getNextChipUse(CHIP_HELMET);
+    var noHelmet = nextHelmet > 0 && nextHelmet - CUR_TURN == 1;
+    var isBuffOn = getAgility() >= CUR_AGI + 50;
+
+
+    // Soin !
+    healMeh();
+
+    // Attack with best weapon
+    var cfw = getCellsForWeapons(CUR_LEEK, myEndPoints, getCell(enemy), getWeapons());
+    if (!noHelmet && !isEmpty(cfw)) {
+        var cfLaser = cfw[WEAPON_LASER];
+        var attackCell = null;
+        if (!isEmpty(cfLaser)) {
+            attackCell = getNearestCell(getCell(), cfLaser);
+            if(getWeapon() != WEAPON_LASER){
+                setWeapon(WEAPON_LASER);
+            }
+        } else {
+            var cfMagnum = cfw[WEAPON_MAGNUM];
+            if (!isEmpty(cfMagnum)) {
+                attackCell = getNearestCell(getCell(), cfMagnum);
+                if(getWeapon() != WEAPON_MAGNUM){
+                    setWeapon(WEAPON_MAGNUM);
+                } else {
+                    myUseChip(CHIP_PROTEIN, CUR_LEEK);
+                }
+            } else {
+                attackCell = getCellToUseWeapon(enemy);
+            }
+        }
+
+        moveTowardCell(attackCell);
+    }
+
+    emptyGun(enemy);
+
+    // Use heal if any points remaining
+    if (getLife() < getTotalLife()) {
+        myUseChip(CHIP_BANDAGE, CUR_LEEK);
+    }
+
+    // Burn dat motha focka
+    emptyChip(CHIP_SPARK, enemy);
+
+
+    debug("nb my EndPoints : " + count(myEndPoints));
+    debug("nb enemy EndPoints : " + count(enemyEndPoints));
+
+    if (isAlive(enemy)) {
+        if (noHelmet) {
+            var enemyInline = isInlineWeapon(getWeapon(enemy));
+            var amIHidden = isHiddenCell(getCell(), enemyEndPoints, CUR_LEEK, enemyInline);
+            if (!amIHidden) {
+                var hiddenCell = getHiddenEndPoint(myEndPoints, enemyEndPoints, CUR_LEEK, enemyInline);
+                debug("selected EndPoint : " + hiddenCell);
+                if (hiddenCell != null) {
+                    moveTowardCell(hiddenCell);
+                } else {
+                    debug("No hidden cell found, moving away !");
+                    var mv = randInt(0, 5);
+                    moveAwayFromCell(getCell(), mv);
+                }
+            }
+        }
+    }
+
+    debug("getInstructionsCount : " + getInstructionsCount());
 }
